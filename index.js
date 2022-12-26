@@ -17,6 +17,7 @@ async function main() {
 }
 
 app.use(cors())
+app.use(express.urlencoded({ extended: true }), express.json())
 
 app.get('/', (req, res) => {
 	res.send('Hello World!')
@@ -28,14 +29,19 @@ app.get('/users', async (req, res) => {
 })
 
 app.post('/users', async (req, res) => {
-	const { name, email } = req.body
-	const user = await prisma.user.create({
-		data: {
-			name,
-			email,
-		},
-	})
-	res.send(user)
+	try {
+		const { name, email } = req.body
+		const user = await prisma.user.create({
+			data: {
+				name,
+				email,
+			},
+		})
+		res.send(user)
+	} catch (error) {
+		console.log(error)
+		res.status(500).send({ message: error.message })
+	}
 })
 
 app.listen(port, () => {
